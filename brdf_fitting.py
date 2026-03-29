@@ -108,7 +108,7 @@ def CT_fit(inc_angle_rad, det_angle_rad, ref_tot):
 	constraints = [{'type':'ineq', 'fun': lambda x: x-bounds[:,0]}, {'type':'ineq', 'fun': lambda x: bounds[:,1]-x}]
 	# Results
 	res = minimize(least_square_diff, var0, args=fixed_var, method='COBYLA', constraints=constraints, options={'tol':1e-6})
-	print(res.x, res.fun, res.success)
+	print((res.x, res.fun, res.success))
 	m, R_dh_Lam, alpha = res.x
 
 	CT = []

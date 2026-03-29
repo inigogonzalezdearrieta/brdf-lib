@@ -34,7 +34,7 @@ def plot_inplane_BDRF(wavelength, thetas_r_deg, theta_i_deg, bdrfs, diffuse_rati
 
 	bdrf_int = interp1d(thetas, bdrfs) # makes the plot look better by interpolating lineraly between angles. Otherwise, the plot will make a straight line in polar coordinates, which is wrong.
 	thetas_plot = N.linspace(N.amin(thetas), N.amax(thetas), 10*len(thetas)+1)
-	if 'color' not in kwargs.keys():
+	if 'color' not in list(kwargs.keys()):
 		if wavelength is not None:
 			color = wavelength_to_rgb(wavelength)
 			kwargs.update({'color':color})
