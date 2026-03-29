@@ -1,9 +1,9 @@
-import numpy as N
-'''
+import numpy as np
+
+"""
 TODO:
 
 - Regroup with fitting
 - Add integration routines based on the sampling module form Tracer.ray_trace_utils
 
-'''
-	
+"""

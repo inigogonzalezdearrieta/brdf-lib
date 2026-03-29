@@ -1,10 +1,10 @@
-import numpy as N
+import numpy as np
 from sys import path
 from os import listdir
 from scipy.spatial import Delaunay
 from scipy.interpolate import LinearNDInterpolator
 
-rad = N.pi / 180.0
+rad = np.pi / 180.0
 
 
 # Script to load the full measurement for one sample and save the data in a CSV format suitable for the rest of the work.
@@ -15,17 +15,17 @@ def convert_to_BDRF(sample_file, dark_current_sample_files, source_power):
     """
     # Load data:
     # Measurement:
-    bdrf = N.loadtxt(sample_file, delimiter=",", skiprows=1)
+    bdrf = np.loadtxt(sample_file, delimiter=",", skiprows=1)
     # Dark current data:
     dark_data = []
     for i, dark_file in enumerate(dark_current_sample_files):
-        dark_data.append(N.loadtxt(dark_file, delimiter=",", skiprows=1))
+        dark_data.append(np.loadtxt(dark_file, delimiter=",", skiprows=1))
     # Integrate averaged lamp data. First we need to interpolate to ba able to use composition trapezoidal rule. The interpolation is directly done on the desired grid:
     for i, dark in enumerate(dark_data):
         i_dcl = interpolate_to(bdrf, dark)
-        bdrf[:, 2] -= N.copy(i_dcl[:, 2]) / float(len(dark_data))
-    bdrf[:, 2] = bdrf[:, 2] / (N.cos(bdrf[:, 0] * rad) * source_power)
-    N.savetxt(
+        bdrf[:, 2] -= np.copy(i_dcl[:, 2]) / float(len(dark_data))
+    bdrf[:, 2] = bdrf[:, 2] / (np.cos(bdrf[:, 0] * rad) * source_power)
+    np.savetxt(
         sample_file[:-4] + "_BDRF.csv",
         bdrf,
         header="theta_r (deg), phi_r (deg), BDRF",
@@ -42,12 +42,12 @@ def process_lamp(lamp_file, dark_current_lamp_files, dang=None):
     """
     # LOAD:
     # Lamp:
-    lamp_data = N.loadtxt(lamp_file, delimiter=",", skiprows=1)
+    lamp_data = np.loadtxt(lamp_file, delimiter=",", skiprows=1)
     # Dark current lamp data:
     dark_lamp_data = []
     for i, dark_lamp_file in enumerate(dark_current_lamp_files):
         dark_lamp_data.append(
-            N.loadtxt(dark_lamp_file, delimiter=",", skiprows=1)
+            np.loadtxt(dark_lamp_file, delimiter=",", skiprows=1)
         )
     # Interpolate the dark currents to grid of the lamp data subtract the contribution to the average:
     for i, dark_lamp in enumerate(dark_lamp_data):
@@ -73,69 +73,71 @@ def interpolate_to(data_ref, data_to_int):
     th_ref, phi_ref = data_ref[:, :2].T
 
     # Find the points in the data_ref that are outside of the data_to_ref domain of definition and will lead to NaNs.
-    th_min, th_max = N.amin(data_to_int[:, 0]), N.amax(data_to_int[:, 0])
-    phi_min, phi_max = N.amin(data_to_int[:, 1]), N.amax(data_to_int[:, 1])
-    bad_th = N.logical_or(th_ref < th_min, th_ref > th_max)
-    bad_phi = N.logical_or(phi_ref < phi_min, phi_ref > phi_max)
-    bad_points = N.logical_or(bad_th, bad_phi)
+    th_min, th_max = np.amin(data_to_int[:, 0]), np.amax(data_to_int[:, 0])
+    phi_min, phi_max = np.amin(data_to_int[:, 1]), np.amax(data_to_int[:, 1])
+    bad_th = np.logical_or(th_ref < th_min, th_ref > th_max)
+    bad_phi = np.logical_or(phi_ref < phi_min, phi_ref > phi_max)
+    bad_points = np.logical_or(bad_th, bad_phi)
     # Add these points to data_to_ref and interpolate with nearest 3 neighbours to have a value there.
     new_to_int = data_ref[bad_points]
     new_to_int[:, 2] = 0
     # Calculate the angular distrance of the bad points to good poinst and interpolate based onm angular distance with the three closest points
-    sint = N.sin(data_to_int[:, 0])
-    cost = N.cos(data_to_int[:, 0])
+    sint = np.sin(data_to_int[:, 0])
+    cost = np.cos(data_to_int[:, 0])
     for i, p in enumerate(new_to_int):
-        psis = N.arccos(
-            N.sin(p[0]) * sint
-            + N.cos(p[0]) * cost * N.cos(p[1] - data_to_int[:, 1])
+        psis = np.arccos(
+            np.sin(p[0]) * sint
+            + np.cos(p[0]) * cost * np.cos(p[1] - data_to_int[:, 1])
         )
         # Find nearest 3 points
-        closest = N.argsort(psis)[:3]
+        closest = np.argsort(psis)[:3]
         # Interpo;late (weighted average):
         weights = 1.0 / psis[closest]
-        new_to_int[i, 2] = N.sum(weights * data_to_int[closest, 2]) / N.sum(
+        new_to_int[i, 2] = np.sum(weights * data_to_int[closest, 2]) / np.sum(
             weights
         )
     # Add new points:
-    data_to_int = N.concatenate((data_to_int, new_to_int))
+    data_to_int = np.concatenate((data_to_int, new_to_int))
 
     # don't forget the sin(th) to triangulate properly:
-    points = N.array(
-        [data_to_int[:, 0], N.sin(data_to_int[:, 0]) * data_to_int[:, 1]]
+    points = np.array(
+        [data_to_int[:, 0], np.sin(data_to_int[:, 0]) * data_to_int[:, 1]]
     ).T
     points_tri = Delaunay(points)
     interpolator = LinearNDInterpolator(points_tri, data_to_int[:, 2])
 
-    interpolated_data = interpolator(th_ref, phi_ref * N.sin(th_ref))
+    interpolated_data = interpolator(th_ref, phi_ref * np.sin(th_ref))
 
-    return N.array([th_ref, phi_ref, interpolated_data]).T
+    return np.array([th_ref, phi_ref, interpolated_data]).T
 
 
-def integrate_polar(spatial_data, dang=N.pi / 1000.0):
+def integrate_polar(spatial_data, dang=np.pi / 1000.0):
     """
     Fully integrate the 3D data over the definition domain
     """
     # convert spatial data to radianst
     spatial_data[:, :2] *= rad
     # Interpolate to a regular grid in polar:
-    minth, maxth = N.amin(spatial_data[:, 0]), N.amax(spatial_data[:, 0])
-    thetas_i, phis_i = N.linspace(
-        minth, maxth, N.ceil((maxth - minth) / dang)
-    ), N.linspace(-N.pi, N.pi, 2.0 * N.pi / dang)
-    TH, PH = N.meshgrid(thetas_i, phis_i)
-    th, ph = N.hstack(TH), N.hstack(PH)
+    minth, maxth = np.amin(spatial_data[:, 0]), np.amax(spatial_data[:, 0])
+    thetas_i, phis_i = np.linspace(
+        minth, maxth, np.ceil((maxth - minth) / dang)
+    ), np.linspace(-np.pi, np.pi, 2.0 * np.pi / dang)
+    TH, PH = np.meshgrid(thetas_i, phis_i)
+    th, ph = np.hstack(TH), np.hstack(PH)
     spatial_data_i = interpolate_to(
-        N.array([th, ph, N.zeros(len(th))]).T, spatial_data
+        np.array([th, ph, np.zeros(len(th))]).T, spatial_data
     )
 
-    data_P = N.zeros(len(phis_i))
+    data_P = np.zeros(len(phis_i))
     # First integrate at constant phis (along thetas):
     for i, p in enumerate(phis_i):
         select = spatial_data_i[:, 1] == p
         ths = spatial_data_i[select, 0]
-        data_P[i] = N.abs(N.trapz(spatial_data_i[select, 2] * N.sin(ths), ths))
+        data_P[i] = np.abs(
+            np.trapz(spatial_data_i[select, 2] * np.sin(ths), ths)
+        )
     # Then integrate the results along phi:
-    data_T = N.trapz(data_P, phis_i)
+    data_T = np.trapz(data_P, phis_i)
     return data_T
 
 
@@ -183,12 +185,12 @@ def format_data(sample_file, target=None):
 
     for l in range(len(data)):
         data[l] = [float(d) for d in data[l].split("\r")[0].split("\t")]
-    data = N.array(data)
+    data = np.array(data)
 
     if target is None:
         target = sample_file[:-3] + "csv"
 
-    N.savetxt(
+    np.savetxt(
         target,
         data,
         delimiter=",",
