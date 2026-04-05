@@ -1,4 +1,5 @@
-# brdf-lib
+
+0;10;1c# brdf-lib
 
 A fork of casselineau's BDRF-lib repository. This repo contains
 scripts and libraries to load, analyze and plot Bi-directional
@@ -15,3 +16,5 @@ compatible with Python 2 have been added to `pyproject.toml`.
 - [ ] Clarify the dependencies and prepare a package with `setuptools`.
 - [ ] Test the package on Python 3 with modern versions of the libraries.
 - [ ] Include a means to import data from the Cary UMA accessory.
+- [ ] Include solar-spectrum data for `spectral_processing.py` in a
+      way that is compatible with the GPL3 license.

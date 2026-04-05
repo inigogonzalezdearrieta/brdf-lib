@@ -1,6 +1,14 @@
 import numpy as np
 from sys import path
 
+"""
+TO-DO:
+
+- Change references to a local version of AM1.5 solar data
+to a web version compatible with the GPL3 license.
+- Change the colorimetry functions.
+"""
+
 
 def wavelength_to_rgb(wavelength, gamma=0.8):
     """
