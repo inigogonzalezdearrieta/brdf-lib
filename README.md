@@ -1,5 +1,5 @@
 
-0;10;1c# brdf-lib
+# brdf-lib
 
 A fork of casselineau's BDRF-lib repository. This repo contains
 scripts and libraries to load, analyze and plot Bi-directional
@@ -7,9 +7,9 @@ Reflectance Distribution Functions (BRDFs). The original reposity was
 the result of the H2020 MSCA IF HEASeRS project
 (https://cordis.europa.eu/project/id/101027316).
 
-Dependencies: numpy, scipy, matplotlib. The original repository was
-written in Python 2, so the last versions of these libraries that are
-compatible with Python 2 have been added to `pyproject.toml`.
+Dependencies: `numpy`, `scipy`, `matplotlib`. The original repository
+was written in Python 2, so the last versions of these libraries that
+are compatible with Python 2 have been added to `pyproject.toml`.
 
 ## TO-DO
 
@@ -18,3 +18,4 @@ compatible with Python 2 have been added to `pyproject.toml`.
 - [ ] Include a means to import data from the Cary UMA accessory.
 - [ ] Include solar-spectrum data for `spectral_processing.py` in a
       way that is compatible with the GPL3 license.
+- [ ] Integrate NIST's pySCATMECH as a dependency.
